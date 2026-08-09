@@ -36,6 +36,24 @@ Setiap prompt delegasi WAJIB memuat:
 6. **Spesifikasi detail yang relevan**: nama file/path yang tepat, nama fungsi/class/variabel yang relevan, signature API yang diharapkan, konvensi penamaan project, dsb. Sebutkan eksplisit, jangan biarkan subagent menebak.
 7. **Aturan verifikasi**: bagaimana subagent harus memverifikasi hasilnya sebelum melaporkan balik ke mandor (mis. baca kembali file yang diedit, jalankan command non-destruktif untuk cek, dsb).
 
+### Path Project Directory
+
+Sebelum mendelegasikan task ke subagent manapun, mandor **WAJIB** mengetahui path absolute project directory saat ini dan menyertakannya di setiap prompt delegasi. Subagent tidak punya akses ke environment mandor - mereka tidak tahu di mana project berada, sehingga sering memberikan instruksi/file path yang salah.
+
+Cara mendapatkan path:
+- Path tertera di system prompt mandor pada bagian `<env>` (field `Working directory` atau `Workspace root folder`).
+- Jika tidak tertera atau ragu, jalankan command non-destruktif `pwd` (via tool `bash`) untuk memverifikasi.
+
+Path WAJIB disertakan di awal prompt delegasi, sebelum instruksi task, dengan format:
+
+```
+PROJECT DIRECTORY: <path-absolute>
+```
+
+Contoh: `PROJECT DIRECTORY: D:\workspace\mandor`
+
+Semua path file yang dirujuk di prompt delegasi harus menggunakan path absolute berbasis project directory ini (mis. `D:\workspace\mandor\.opencode\agents\mandor.md`), bukan path relatif ambigu atau path yang diasumsikan subagent.
+
 ### Dilarang
 
 - **Dilarang** memberi prompt delegasi yang samar/singkat seperti "tolong review kode ini" tanpa konteks tujuan, scope, dan ekspektasi.
