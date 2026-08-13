@@ -13,7 +13,8 @@ Pendekatan ini cocok untuk developer yang ingin membangun project kompleks denga
 - 6 agents: 1 primary (Mandor sebagai koordinator) + 5 subagent spesialis (`project-design`, `write-code`, `code-reviewer`, `security-auditor`, `memorize`)
 - 8 slash commands untuk workflow umum (build, review, ship, spec, test, dll)
 - 24 skill yang dapat direkomendasikan oleh Mandor ke subagent sesuai kebutuhan task
-- Workflow wajib: design-before-code, memory persistence setelah perubahan, pemilihan mode eksekusi di awal sesi
+- Workflow wajib: design-before-code, memory persistence setelah perubahan, sinkronisasi status todo antar subagent, pemilihan mode eksekusi di awal sesi
+- Sistem rules: user menetapkan aturan operasional yang disimpan di `.mandor/agents/rules.md` dan dipatuhi semua agent; mandor tanya user saat instruksi bertolak belakang dengan aturan aktif
 - Disable 4 agent default OpenCode (`plan`, `build`, `general`, `explore`) - hanya pakai agent kustom Mandor
 - Memory project tersimpan lokal (di-gitignore, tidak dipublikasi)
 
@@ -65,7 +66,7 @@ Pendekatan ini cocok untuk developer yang ingin membangun project kompleks denga
     using-agent-skills/
 ```
 
-> Catatan: direktori `.mandor/` (memory project lokal) di-exclude oleh `.gitignore` dan tidak dipublikasi ke repository.
+> Catatan: direktori `.mandor/` (memory project lokal + rules) di-exclude oleh `.gitignore` dan tidak dipublikasi ke repository.
 
 ## Quick Start
 
@@ -90,10 +91,10 @@ Setelah `opencode` berjalan, Mandor otomatis menjadi primary agent. Mandor akan 
 |---|---|---|---|
 | `mandor` | primary | Project Manager, koordinator | Tidak menulis kode sendiri (Mode Delegasi default); mendelegasikan ke subagent. Temperature 0.1 |
 | `project-design` | subagent | Merancang arsitektur sistem | Wajib dipanggil sebelum `write-code` untuk kode baru |
-| `write-code` | subagent | Menulis/mengedit/memperbaiki kode | Menerima konteks lengkap dari mandor; update memory setelah perubahan |
+| `write-code` | subagent | Menulis/mengedit/memperbaiki kode | Menerima konteks lengkap dari mandor; sinkronkan status todo ke file shared via memorize; update memory setelah perubahan |
 | `code-reviewer` | subagent | Review kode menyeluruh | 5 axis: correctness, readability, architecture, security, performance |
 | `security-auditor` | subagent | Audit keamanan mendalam | Vulnerability, threat modeling, hardening |
-| `memorize` | subagent | Manajemen memory project | Satu-satunya pemilik direktori `.mandor/agents/memory/` |
+| `memorize` | subagent | Manajemen memory project | Satu-satunya pemilik direktori `.mandor/` (memory + rules.md); kelola rules (Save/Load/Remove) |
 
 ## Commands
 
@@ -147,8 +148,8 @@ Alur kerja Mandor dari awal sesi sampai respond ke user:
 
 ```text
 1. Initial chat
-   Mandor menyapa user, inisialisasi tools reference (fetch docs OpenCode),
-   dan tanyakan pilihan mode eksekusi.
+   Mandor menyapa user, inisialisasi tools reference (memorize fetch docs OpenCode),
+   load memory + load rules, dan tanyakan pilihan mode eksekusi.
 
 2. Pilih mode
    User pilih: Mode Delegasi (default) atau Mode Langsung.
@@ -159,10 +160,13 @@ Alur kerja Mandor dari awal sesi sampai respond ke user:
    c. code-reviewer     -> review 5-axis (opsional, sesuai kebutuhan)
    d. security-auditor  -> audit keamanan (opsional, sesuai kebutuhan)
    e. memorize          -> catat perubahan ke memory project (wajib setelah batch perubahan)
+   f. write-code        -> sinkronkan status todo ke file shared via memorize (wajib setelah batch)
 
 4. Respond ke user
    Mandor rangkum hasil delegasi dan laporkan balik.
 ```
+
+Sistem rules: jika user menetapkan aturan, mandor simpan ke `.mandor/agents/rules.md` via memorize; jika instruksi bertolak belakang dengan aturan aktif, mandor tanya user (1x saja / seterusnya / jangan jalankan).
 
 ## Mode Eksekusi
 
@@ -170,7 +174,7 @@ Mandor menyediakan dua mode eksekusi yang dipilih di awal sesi:
 
 - **Mode Delegasi (default)**: Mandor hanya berperan sebagai koordinator. Semua implementasi, review, dan audit didelegasikan ke subagent sesuai keahlian. Memory project tetap dikelola oleh `memorize`. Mode ini memberikan pemisahan tanggung jawab yang jelas.
 
-- **Mode Langsung**: Mandor mengerjakan task sendiri tanpa delegasi ke subagent, kecuali update memory yang tetap didelegasikan ke `memorize`. Cocok untuk task kecil yang tidak memerlukan spesialisasi subagent.
+- **Mode Langsung**: Mandor mengerjakan task sendiri tanpa delegasi ke subagent, kecuali update memory dan pengelolaan rules yang tetap didelegasikan ke `memorize`. Cocok untuk task kecil yang tidak memerlukan spesialisasi subagent.
 
 ## License
 

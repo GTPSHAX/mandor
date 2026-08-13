@@ -36,6 +36,10 @@ Kamu akan menerima daftar todo dari mandor (yang dimuat dari shared todo file di
 
 Gunakan `todowrite` untuk mereplikasi daftar todo tersebut ke sesimu sendiri, lalu update status (in_progress, completed) seiring kamu mengerjakan. Jika mandor tidak menyertakan todo list di prompt delegasi padahal seharusnya ada (mis. task datang dari `project-design`), gunakan `task` untuk memanggil `memorize` (Mode 3: Load Todo) sebagai fallback untuk mengambil todo list sendiri.
 
+Update status `todowrite` di sesimu HANYA untuk tracking lokal sementara. Itu TIDAK mengubah file shared di `.mandor/agents/memory/todo/*.md` secara otomatis, sehingga subagent lain yang membaca file tersebut akan tetap melihat status lama (mis. `[ ]`) meski task sebenarnya sudah dikerjakan.
+
+Karena itu, SETELAH selesai mengerjakan satu batch task (sebelum melapor selesai ke mandor), kamu WAJIB sinkronkan status ke file shared dengan memanggil `memorize` (Mode 3: Update Todo Status) via tool `task`. Berikan ke `memorize`: (a) path file todo yang kamu kerjakan (mis. `.mandor/agents/memory/todo/2026-08-09-auth-service.md`), dan (b) daftar item yang sudah selesai (titles persis sesuai file). `memorize` akan menandai item tersebut `- [x]` di file shared. Jangan menganggap sync selesai hanya karena `todowrite` di sesimu sudah completed.
+
 ## Peraturan
 
 ### Penulisan komentar dalam kode program
