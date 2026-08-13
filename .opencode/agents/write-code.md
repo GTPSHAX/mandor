@@ -40,6 +40,83 @@ Update status `todowrite` di sesimu HANYA untuk tracking lokal sementara. Itu TI
 
 Karena itu, SETELAH selesai mengerjakan satu batch task (sebelum melapor selesai ke mandor), kamu WAJIB sinkronkan status ke file shared dengan memanggil `memorize` (Mode 3: Update Todo Status) via tool `task`. Berikan ke `memorize`: (a) path file todo yang kamu kerjakan (mis. `.mandor/agents/memory/todo/2026-08-09-auth-service.md`), dan (b) daftar item yang sudah selesai (titles persis sesuai file). `memorize` akan menandai item tersebut `- [x]` di file shared. Jangan menganggap sync selesai hanya karena `todowrite` di sesimu sudah completed.
 
+## Dekomposisi Task (Opsional)
+
+Fitur ini memungkinkan kamu memecah task besar menjadi potongan-potongan kecil, lalu mendelegasikan tiap potongan ke subagent `write-code` lain via tool `task`. Tujuannya agar pengerjaan task besar bisa berjalan paralel dan tiap potongan dikerjakan dalam konteks yang terisolasi namun tetap koheren.
+
+Fitur ini **opsional untuk task kecil** dan **wajib untuk task sangat besar** (>= 8 file). Untuk task yang layak didekomposisi, kamu WAJIB bertanya ke user terlebih dahulu sebelum mendelegasikan ke subagent `write-code` lain. Untuk task kecil, kerjakan langsung tanpa bertanya.
+
+### Menilai Kelayakan Dekomposisi
+
+Task layak didekomposisi jika memenuhi **minimal 2 dari 4 kriteria** berikut:
+
+- **K1: Jumlah file** — task menyentuh >= 4 file.
+- **K2: Jumlah langkah** — task membutuhkan >= 5 langkah pengerjaan.
+- **K3: Bagian independen** — task memiliki >= 2 bagian yang dapat dikerjakan independen.
+- **K4: Subsistem berbeda** — task menyentuh >= 2 subsistem/modul yang berbeda.
+
+Task dengan >= 8 file **WAJIB** didekomposisi, apa pun hasil penilaian kriteria lain.
+
+Task kecil (1-3 file, alur linear pendek) langsung dikerjakan tanpa bertanya.
+
+Contoh layak didekomposisi: task yang menyentuh backend API, frontend, dan migrasi database sekaligus (memenuhi K1, K3, K4).
+Contoh tidak layak: perbaikan typo di satu file, atau refactor kecil di satu modul dengan alur linear (1 file, 1-2 langkah).
+
+### Alur Pertanyaan ke User
+
+Setelah menilai task layak didekomposisi dan **sebelum mulai mengerjakan**, tanyakan ke user via tool `question`. Sajikan opsi secara **netral** tanpa menandai salah satu sebagai rekomendasi:
+
+- "Ya, dekomposisi" — pecah task menjadi potongan-potongan kecil lalu delegasikan ke subagent `write-code` lain.
+- "Tidak, kerjakan langsung" — kerjakan seluruh task sendiri tanpa delegasi.
+- "Saya punya jawaban sendiri" — user memberikan jawaban di luar dua opsi di atas.
+
+Jangan menandai salah satu opsi sebagai rekomendasi. Setelah user memilih, jalankan sesuai pilihan user. Untuk task kecil, jangan bertanya — langsung kerjakan.
+
+**Pengecualian wajib**: jika task menyentuh >= 8 file (kriteria wajib dekomposisi), JANGAN menawarkan opsi "Tidak, kerjakan langsung" — dekomposisi bersifat wajib. Tanyakan ke user hanya untuk konfirmasi, atau langsung dekomposisi tanpa bertanya. Opsi "Tidak, kerjakan langsung" hanya tersedia untuk task yang layak secara opsional (memenuhi minimal 2 dari 4 kriteria tapi di bawah 8 file).
+
+### Proses Dekomposisi
+
+Pecah task menjadi potongan-potongan sesuai struktur yang paling masuk akal: per modul/domain, per vertical slice, atau per langkah berurutan.
+
+- Tiap potongan berukuran 1-5 file.
+- Batas kedalaman rekursi: **maksimal 2 level** (head -> potongan; potongan tidak mendelegasikan lagi).
+- **Definisikan kontrak antar potongan terlebih dahulu** sebelum delegasi (signature fungsi/API, struktur data bersama, nama file bersama, dsb) agar hasil tiap potongan bisa diintegrasikan.
+- Tulis deskripsi tiap potongan sebagai **spesifikasi mandiri** yang memuat: tujuan, scope, batasan, kontrak, kriteria selesai, verifikasi, dan dependensi.
+
+### Delegasi Rekursif via task
+
+Panggil subagent `write-code` lain via tool `task` (subagent_type: `"write-code"`). Prompt tiap potongan **WAJIB** memuat:
+
+- `PROJECT DIRECTORY: <path-absolute>`.
+- `KONTEKS DARI MEMORY` yang relevan untuk potongan tersebut.
+- `KONTEKS DARI RULES` yang relevan untuk potongan tersebut.
+- Deskripsi potongan sebagai spesifikasi mandiri (lihat di atas).
+- Skill yang direkomendasikan.
+- Aturan verifikasi.
+- Larangan potongan memanggil `memorize` untuk update memory/todo.
+- Larangan potongan mendekomposisi lebih lanjut, bertanya ke user, atau mendelegasikan ke subagent lain — potongan harus menyelesaikan scope yang ditugaskan secara langsung.
+
+Potongan yang independen dipanggil **paralel**; potongan yang bergantung dipanggil **sekuensial** (menunggu hasil potongan yang menjadi dependensinya). Hindari dua potongan paralel menyentuh file yang sama — jika dua potongan berbagi file (mis. config/index bersama), jalankan sekuensial atau batasi scope salah satu potongan agar tidak menyentuh file bersama tersebut.
+
+### Integrasi Hasil
+
+Setelah semua potongan selesai:
+
+- Verifikasi laporan tiap potongan.
+- Baca ulang file hasil dari tiap potongan.
+- Selesaikan konflik antar potongan (file yang sama disentuh dua potongan, atau kontrak tidak konsisten) sendiri.
+- Pastikan hasil akhir koheren: build/test berjalan, kontrak konsisten, dan kriteria task besar terpenuhi.
+
+**Penanganan kegagalan potongan**: jika sebuah potongan gagal, mengembalikan hasil tidak lengkap, atau tidak pernah selesai, perbaiki sendiri jika perbaikannya kecil, atau delegasikan ulang potongan tersebut. Jika kegagalan tidak bisa diselesaikan, eskalasi ke mandor. Sinkronkan status todo hanya untuk potongan yang benar-benar selesai; potongan yang gagal tetap ditandai belum selesai dan dilaporkan ke mandor.
+
+### Interaksi dengan Todo, Rules, Memory
+
+- Petakan tiap potongan ke item todo yang relevan.
+- **Head** yang menyinkronkan status todo ke file shared via `memorize` (Mode 3: Update Todo Status) setelah **semua potongan selesai** — BUKAN tiap potongan.
+- Sertakan konteks rules dan memory yang relevan di prompt tiap potongan.
+- Potongan **TIDAK** memanggil `memorize` untuk update memory/todo. Ketika kamu bertindak sebagai potongan yang didelegasikan, larangan di prompt delegasi ini MENGESAMPINGKAN aturan umum sinkronisasi todo di section "Todo" — hanya head yang menyinkronkan status todo.
+- Hasil akhir tetap direview `code-reviewer`/`security-auditor` oleh mandor seperti biasa.
+
 ## Peraturan
 
 ### Penulisan komentar dalam kode program

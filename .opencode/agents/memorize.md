@@ -71,6 +71,8 @@ Karena setiap subagent punya sesi terpisah dan tidak bisa berbagi `todowrite` se
 
 Dipanggil oleh `write-code` (atau subagent lain) setelah selesai mengerjakan todo, untuk menulis balik status ke file shared di `todo/` supaya subagent lain yang membaca file tersebut melihat kondisi yang benar.
 
+Dalam konteks "Dekomposisi Task (Opsional)" (lihat `write-code.md`), pemanggil bisa berupa **head `write-code` yang mengintegrasikan hasil beberapa potongan**. Dalam kasus tersebut, status todo disinkronkan oleh **head** setelah semua potongan selesai — bukan oleh tiap potongan. Potongan yang didelegasikan TIDAK memanggil mode ini untuk update status; hanya head yang memanggilnya.
+
 1. Kamu akan menerima dari pemanggil: (a) path file todo yang dikerjakan (mis. `.mandor/agents/memory/todo/2026-08-09-auth-service.md`), dan (b) daftar item yang sudah selesai dikerjakan (titles persis sesuai yang tertulis di file).
 2. Baca file todo tersebut dari `todo/`. Jika path file tidak diberikan oleh pemanggil, gunakan `glob` dengan parameter `path` diisi eksplisit (mis. `pattern=".mandor/agents/memory/todo/**/*.md"` `path="."`) untuk menemukan file todo yang paling relevan, lalu baca file tersebut.
 3. Untuk setiap item di daftar "selesai", ubah checkbox dari `- [ ]` menjadi `- [x]` di file. Cocokkan berdasarkan title item; jika ada ketidakcocokan kecil, gunakan penilaian terbaik tapi jangan menandai selesai item yang tidak ada di daftar "selesai" dari pemanggil.
