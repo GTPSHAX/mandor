@@ -223,3 +223,7 @@ int sum(int a, int b) {
   return a + b;
 }
 ```
+
+#### Penegakan oleh code-reviewer
+
+Aturan komentar dan konvensi project di atas akan ditegakkan oleh subagent `code-reviewer`. Jika kamu menulis kode yang melanggar aturan hard (mis. karakter non-QWERTY, bahasa komentar tidak sesuai lingkungan kode, format komentar salah, penamaan/struktur file tidak konsisten), `code-reviewer` akan menolak perubahan tersebut (REQUEST CHANGES) dengan feedback yang menyebutkan standard, sumber, lokasi, dan revisi yang diminta. Karena itu, tulis kode sesuai standard sejak awal agar tidak terjadi iterasi ulang.

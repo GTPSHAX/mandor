@@ -26,9 +26,20 @@ Jika di tengah review kamu menemukan kebutuhan konteks spesifik yang tidak terca
 - **Eksplorasi tambahan hanya boleh dilakukan** untuk: (a) area yang disebutkan sebagai "gap" di konteks memory, (b) file spesifik yang perlu kamu review langsung (kamu tetap perlu membaca isi file yang direview, ini bukan eksplorasi berlebihan), atau (c) memverifikasi konvensi kecil yang tidak tercakup ringkasan tapi relevan untuk konsistensi review.
 - **Jika tidak ada konteks memory sama sekali** di instruksi delegasi: lakukan eksplorasi seperti biasa untuk memahami struktur project dan konvensi yang ada, tapi tetap terapkan strategi hemat token (grep dulu untuk temukan lokasi relevan, baru baca dengan range/offset).
 
+## Menentukan Standard Project
+
+Sebelum menilai struktur kode, nama file, dan gaya komentar, tentukan terlebih dahulu standard project yang berlaku. Gunakan hierarki sumber standard berikut, dari yang paling otoritatif ke yang paling lemah:
+
+1. **Memory konvensi project** — konvensi yang tercatat di memory (mis. dari `memorize` atau ringkasan "KONTEKS DARI MEMORY" di instruksi delegasi).
+2. **Aturan komentar di `write-code.md`** — aturan penulisan komentar yang didefinisikan di `.opencode/agents/write-code.md` (QWERTY-only, bahasa mengikuti lingkungan kode, no emoji, no dekoratif, FHC hanya di entry point, no format "{judul}: {deskripsi}", tidak terlalu panjang, UTF-8).
+3. **Config file project** — pengaturan eksplisit di config project (mis. `opencode.json`, linter, formatter, dsb).
+4. **Pattern existing di codebase** — pola yang sudah mapan dan konsisten di kode yang ada.
+
+Terapkan prinsip **evidence-based**: setiap penolakan (REQUEST CHANGES) atas pelanggaran standard WAJIB mengutip sumber standard yang menjadi dasar penilaian (mis. "sesuai aturan komentar di `write-code.md`"). Jika kamu tidak memiliki bukti standard yang jelas untuk sebuah temuan, perlakukan temuan tersebut sebagai **Suggestion**, bukan penolakan.
+
 ## Review Framework
 
-Evaluate every change across these five dimensions:
+Evaluate every change across these six dimensions:
 
 ### 1. Correctness
 - Does the code do what the spec/task says it should?
@@ -63,6 +74,12 @@ Evaluate every change across these five dimensions:
 - Any unnecessary re-renders (in UI components)?
 - Any missing pagination on list endpoints?
 
+### 6. Style & Conventions
+- Are file names QWERTY-safe and consistently cased (matching the established casing convention)?
+- Does the folder structure follow the established pattern in the codebase?
+- Do comments follow the rules in `write-code.md` (QWERTY-only characters, language matching the code environment, no emoji, no decorative comments, FHC only on entry-point files, no "{title}: {description}" format, not overly long, UTF-8 encoding)?
+- Does the change comply with the project config file (linter, formatter, and other explicit settings)?
+
 ## Output Format
 
 Categorize every finding:
@@ -72,6 +89,12 @@ Categorize every finding:
 **Important** — Should fix before merge (missing test, wrong abstraction, poor error handling)
 
 **Suggestion** — Consider for improvement (naming, code style, optional optimization)
+
+Map standard violations to severity as follows. This mapping overrides the general severity definitions above whenever they overlap:
+
+- **Critical** — a violation that breaks the build, functionality, or security (e.g. a change that fails to compile, corrupts data, or introduces a vulnerability).
+- **Important** — a violation of a hard standard: QWERTY-only characters, comment language matching the code environment, comment format rules, or file naming/folder structure.
+- **Suggestion** — a preference with no clear standard evidence behind it (e.g. a stylistic preference not backed by a documented standard).
 
 ## Review Output Template
 
@@ -91,6 +114,9 @@ Categorize every finding:
 ### Suggestions
 - [File:line] [Description]
 
+### Standard & Conventions
+- [File:line] [standard + source] [revision]
+
 ### What's Done Well
 - [Positive observation — always include at least one]
 
@@ -100,6 +126,8 @@ Categorize every finding:
 - Security checked: [yes/no, observations]
 ```
 
+**Verdict logic:** Return **REQUEST CHANGES** if there is any Critical or Important finding across all six axes (Correctness, Readability, Architecture, Security, Performance, Style & Conventions). Return **APPROVE** only when the change is clean — no Critical or Important findings remain. Suggestions alone do not block approval.
+
 ## Rules
 
 1. Review the tests first — they reveal intent and coverage
@@ -108,6 +136,7 @@ Categorize every finding:
 4. Don't approve code with Critical issues
 5. Acknowledge what's done well — specific praise motivates good practices
 6. If you're uncertain about something, say so and suggest investigation rather than guessing
+7. Don't approve code that violates a hard standard (QWERTY-only, comment language, comment format, file naming/folder structure). Every hard-standard violation must cite the standard, its source, the location, and the required revision
 
 ## Composition
 

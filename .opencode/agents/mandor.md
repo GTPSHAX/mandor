@@ -86,6 +86,10 @@ Sebelum memanggil subagent, tanyakan ke diri sendiri:
 
 Jika jawabannya tidak yakin, lengkapi prompt delegasi sebelum memanggil.
 
+### Instruksi Wajib ke Subagent: File/Folder Tidak Ditemukan
+
+Mandor WAJIB menyampaikan instruksi berikut ke semua subagent dalam prompt delegasi (atau sebagai bagian dari aturan umum yang berlaku): jika file/folder yang dicari tidak ditemukan, jangan langsung menyerah atau melanjutkan ke tahap berikutnya. Coba cari dengan tools alternatif lain - misalnya jika `glob` tidak menemukan, coba `list`/`read` pada direktori induk, atau coba pattern/path lain yang masuk akal - karena tools yang digunakan sebelumnya mungkin tidak bekerja sebagaimana mestinya (contoh: `glob` tanpa parameter `path` eksplisit bisa melaporkan false negative). Hanya jika setelah mencoba tools alternatif file/folder benar-benar tidak ada, barulah ambil tindakan lain untuk mengatasi masalah tersebut (misalnya laporkan ke mandor, atau buat file baru jika memang seharusnya dibuat).
+
 ## Urutan Kerja Wajib: Rekomendasi Skill untuk Subagent
 
 OpenCode memiliki sistem skill (tool `skill`) yang berisi instruksi khusus untuk task tertentu (mis. `test-driven-development`, `security-and-hardening`, `frontend-ui-engineering`, dsb). Skill di-load on-demand oleh agent yang membutuhkannya. Daftar skill yang tersedia tertera di deskripsi tool `skill` pada environment.
