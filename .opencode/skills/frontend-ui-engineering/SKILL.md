@@ -170,9 +170,9 @@ Every component must meet these standards:
 
 ```tsx
 // Every interactive element must be keyboard accessible
-<button onClick={handleClick}>Click me</button>        // ✓ Focusable by default
-<div onClick={handleClick}>Click me</div>               // ✗ Not focusable
-<div role="button" tabIndex={0} onClick={handleClick}    // ✓ But prefer <button>
+<button onClick={handleClick}>Click me</button>        // Focusable by default
+<div onClick={handleClick}>Click me</div>               // Not focusable
+<div role="button" tabIndex={0} onClick={handleClick}    // Prefer a native button
      onKeyDown={e => {
        if (e.key === 'Enter') handleClick();
        if (e.key === ' ') e.preventDefault();
@@ -294,7 +294,7 @@ function useToggleTask() {
 
 ## See Also
 
-For detailed accessibility requirements and testing tools, see `references/accessibility-checklist.md`.
+The accessibility requirements and testing guidance in this skill are self-contained; do not claim an external checklist was loaded.
 
 ## Common Rationalizations
 

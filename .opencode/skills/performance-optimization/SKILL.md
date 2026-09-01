@@ -47,8 +47,8 @@ Two complementary approaches — use both:
 **Frontend:**
 ```bash
 # Synthetic: Lighthouse in Chrome DevTools (or CI)
-# Chrome DevTools → Performance tab → Record
-# Chrome DevTools MCP → Performance trace
+# In Chrome DevTools, open Performance and select Record
+# In Chrome DevTools MCP, capture a performance trace
 
 # RUM: Web Vitals library in code
 import { onLCP, onINP, onCLS } from 'web-vitals';
@@ -123,7 +123,7 @@ Common bottlenecks by category:
 #### N+1 Queries (Backend)
 
 ```typescript
-// BAD: N+1 — one query per task for the owner
+// BAD: N+1 performs one owner query per task
 const tasks = await db.tasks.findMany();
 for (const task of tasks) {
   task.owner = await db.users.findUnique({ where: { id: task.ownerId } });
@@ -245,7 +245,7 @@ function TaskStats({ tasks }: Props) {
 ```typescript
 // Modern bundlers (Vite, webpack 5+) handle named imports with tree-shaking automatically,
 // provided the dependency ships ESM and is marked `sideEffects: false` in package.json.
-// Profile before changing import styles — the real gains come from splitting and lazy loading.
+// Profile first; the largest gains usually come from splitting and lazy loading.
 
 // GOOD: Dynamic import for heavy, rarely-used features
 const ChartLibrary = lazy(() => import('./ChartLibrary'));
@@ -311,11 +311,6 @@ npx bundlesize --config bundlesize.config.json
 # Lighthouse CI
 npx lhci autorun
 ```
-
-## See Also
-
-For detailed performance checklists, optimization commands, and anti-pattern reference, see `references/performance-checklist.md`.
-
 
 ## Common Rationalizations
 

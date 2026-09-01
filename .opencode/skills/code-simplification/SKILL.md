@@ -162,7 +162,7 @@ Make one simplification at a time. Run tests after each change. **Submit refacto
 FOR EACH SIMPLIFICATION:
 1. Make the change
 2. Run the test suite
-3. If tests pass → commit (or continue to next simplification)
+3. If tests pass, continue or request separate explicit commit approval
 4. If tests fail → revert and reconsider
 ```
 
@@ -290,8 +290,8 @@ function UserBadge({ user }: Props) {
 }
 
 // SIMPLIFY: Prop drilling through intermediate components
-// Before — consider whether context or composition solves this better.
-// This is a judgment call — flag it, don't auto-refactor.
+// Before: consider whether context or composition solves this better.
+// This is a judgment call; flag it instead of auto-refactoring.
 ```
 
 ## Common Rationalizations

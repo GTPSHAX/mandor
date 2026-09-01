@@ -101,7 +101,7 @@ Comment the *why*, not the *what*:
 counter += 1;
 
 // GOOD: Explains non-obvious intent
-// Rate limit uses a sliding window — reset counter at window boundary,
+// Reset at the sliding-window boundary to prevent edge bursts.
 // not on a fixed schedule, to prevent burst attacks at window edges
 if (now - windowStart > WINDOW_SIZE_MS) {
   counter = 0;
@@ -118,21 +118,22 @@ function calculateTotal(items: CartItem[]): number {
 }
 
 // Don't leave TODO comments for things you should just do now
-// TODO: add error handling  ← Just add it
+// TODO: add error handling
 
 // Don't leave commented-out code
-// const oldImplementation = () => { ... }  ← Delete it, git has history
+// const oldImplementation = () => { ... }
 ```
 
 ### Document Known Gotchas
 
 ```typescript
 /**
- * IMPORTANT: This function must be called before the first render.
- * If called after hydration, it causes a flash of unstyled content
- * because the theme context isn't available during SSR.
+ * @brief Initializes the theme before the first render.
  *
- * See ADR-003 for the full design rationale.
+ * Calling this after hydration can cause a flash of unstyled content
+ * because the theme context is unavailable during SSR. See ADR-003.
+ *
+ * @param theme The theme to initialize.
  */
 export function initializeTheme(theme: Theme): void {
   // ...
@@ -141,27 +142,30 @@ export function initializeTheme(theme: Theme): void {
 
 ## API Documentation
 
-For public APIs (REST, GraphQL, library interfaces):
+Public API documentation must match the language, signature, and implementation. Do not invent parameter semantics, return behavior, exceptions, side effects, or examples.
 
-### Inline with Types (Preferred for TypeScript)
+### Canonical Doxygen for C-like languages
 
-```typescript
+Use the official Doxygen documentation as the primary source: https://www.doxygen.nl/manual/docblocks.html.
+
+For C, C++, C#, Objective-C, PHP, Java, and other C-like languages supported by the project's Doxygen configuration, default to Javadoc-style `/** ... */`. Alternative `/*!`, `///`, or `//!` forms require consistent existing project usage, project config, or explicit user instruction.
+
+```cpp
 /**
- * Creates a new task.
+ * @brief Creates a task from validated input.
  *
- * @param input - Task creation data (title required, description optional)
- * @returns The created task with server-generated ID and timestamps
- * @throws {ValidationError} If title is empty or exceeds 200 characters
- * @throws {AuthenticationError} If the user is not authenticated
- *
- * @example
- * const task = await createTask({ title: 'Buy groceries' });
- * console.log(task.id); // "task_abc123"
+ * @param[in] input The validated task creation data.
+ * @return The created task with server-generated fields.
+ * @throws ValidationError If the input violates the task contract.
  */
-export async function createTask(input: CreateTaskInput): Promise<Task> {
-  // ...
-}
+Task createTask(const CreateTaskInput& input);
 ```
+
+Use `@brief` in every required block, `@param`/direction where relevant, `@tparam` for template parameters, `@return` for meaningful return values, and `@throws`/`@exception` only for actual contract exceptions. Use `@pre`, `@post`, `@warning`, `@note`, and `@deprecated` only when relevant. Public namespaces, classes, structs, interfaces, enums, functions/methods, important constructors, aliases, callbacks, templates, constants, macros, and exposed global objects require documentation when created or changed.
+
+Use `@file` when Doxygen or the project structure requires file documentation, including files that expose global functions, typedefs, enums, macros, or global objects. Do not automatically add author, creation date, copyright, or license metadata.
+
+For non-C-like languages, use the idiomatic documentation system for that language. Do not force C-like syntax; record C-like Doxygen compliance as `N/A` with a reason.
 
 ### OpenAPI / Swagger for REST APIs
 
@@ -272,7 +276,8 @@ After documenting:
 
 - [ ] ADRs exist for all significant architectural decisions
 - [ ] README covers quick start, commands, and architecture overview
-- [ ] API functions have parameter and return type documentation
+- [ ] Public APIs use the language-appropriate documentation system
+- [ ] C-like Doxygen blocks use canonical format and signature-accurate tags
 - [ ] Known gotchas are documented inline where they matter
 - [ ] No commented-out code remains
 - [ ] Rules files (CLAUDE.md etc.) are current and accurate

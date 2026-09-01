@@ -50,10 +50,10 @@ interface TaskAPI {
   // Returns a single task or throws NotFoundError
   getTask(id: string): Promise<Task>;
 
-  // Partial update — only provided fields change
+  // A partial update changes only the provided fields
   updateTask(id: string, input: UpdateTaskInput): Promise<Task>;
 
-  // Idempotent delete — succeeds even if already deleted
+  // An idempotent delete succeeds even if the item was already deleted
   deleteTask(id: string): Promise<void>;
 }
 ```
@@ -74,13 +74,13 @@ interface APIError {
 }
 
 // Status code mapping
-// 400 → Client sent invalid data
-// 401 → Not authenticated
-// 403 → Authenticated but not authorized
-// 404 → Resource not found
-// 409 → Conflict (duplicate, version mismatch)
-// 422 → Validation failed (semantically invalid)
-// 500 → Server error (never expose internal details)
+// 400 means the client sent invalid data
+// 401 means the client is not authenticated
+// 403 means the client is authenticated but not authorized
+// 404 means the resource was not found
+// 409 means a conflict, such as a duplicate or version mismatch
+// 422 means semantic validation failed
+// 500 means a server error; never expose internal details
 ```
 
 **Don't mix patterns.** If some endpoints throw, others return null, and others return `{ error }` — the consumer can't predict behavior.
@@ -138,8 +138,8 @@ interface CreateTaskInput {
 // Bad: Change existing field types or remove fields
 interface CreateTaskInput {
   title: string;
-  // description: string;  // Removed — breaks existing consumers
-  priority: number;         // Changed from string — breaks existing consumers
+  // description: string;  // Removing this field breaks existing consumers
+  priority: number;         // Changing this from string breaks existing consumers
 }
 ```
 
@@ -291,4 +291,4 @@ After designing an API:
 - [ ] List endpoints support pagination
 - [ ] New fields are additive and optional (backward compatible)
 - [ ] Naming follows consistent conventions across all endpoints
-- [ ] API documentation or types are committed alongside the implementation
+- [ ] API documentation or types are included with the implementation; any commit has separate explicit user approval

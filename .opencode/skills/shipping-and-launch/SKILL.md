@@ -9,6 +9,8 @@ description: Prepares production launches. Use when preparing to deploy to produ
 
 Ship with confidence. The goal is not just to deploy — it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
 
+This skill plans and verifies launch readiness. Commit, push, merge, tag, release, deploy, migration execution, feature-flag changes, and external-service changes require separate explicit user approval for each exact operation. A GO assessment is not permission to execute a launch.
+
 ## When to Use
 
 - Deploying a feature to production for the first time
@@ -265,10 +267,8 @@ Every deployment needs a rollback plan before it happens:
 ```
 ## See Also
 
-- For the project-wide Definition of Done that every change must clear before this checklist, see `references/definition-of-done.md`
-- For security pre-launch checks, see `references/security-checklist.md`
-- For performance pre-launch checklist, see `references/performance-checklist.md`
-- For accessibility verification before launch, see `references/accessibility-checklist.md`
+- Apply the project-wide gate at `.opencode/references/definition-of-done.md` before this launch checklist.
+- Security, performance, and accessibility checks in this skill are self-contained; do not claim an external checklist was loaded.
 
 ## Common Rationalizations
 

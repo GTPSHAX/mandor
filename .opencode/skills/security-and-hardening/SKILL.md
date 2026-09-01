@@ -74,7 +74,7 @@ If you can't name the trust boundaries for a feature, you're not ready to secure
 
 ## OWASP Top 10 Prevention Patterns
 
-These are prevention patterns, not a ranking. For the 2021 ordering, see the quick-reference table in `references/security-checklist.md`.
+These are prevention patterns, not a ranking. Verify current OWASP ordering from an official OWASP source when the ordering itself matters.
 
 ### Injection (SQL, NoSQL, OS Command)
 
@@ -165,7 +165,7 @@ app.use(helmet.contentSecurityPolicy({
   },
 }));
 
-// CORS — restrict to known origins
+// Restrict CORS to known origins
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
   credentials: true,
@@ -265,7 +265,7 @@ function validateUpload(file: UploadedFile) {
   if (file.size > MAX_SIZE) {
     throw new ValidationError('File too large (max 5MB)');
   }
-  // Don't trust the file extension — check magic bytes if critical
+  // Check magic bytes for critical uploads; do not trust the extension.
 }
 ```
 
@@ -366,7 +366,7 @@ const sql = await llm.generate(`Write SQL for: ${userQuestion}`);
 await db.query(sql);                                   // arbitrary query execution
 container.innerHTML = await llm.reply(userMessage);   // stored XSS, via the model
 
-// GOOD: model output is data — parse defensively, then validate, then encode
+// GOOD: Treat model output as data, then parse, validate, and encode it.
 let intent;
 try {
   intent = CommandSchema.parse(JSON.parse(await llm.replyJson(userMessage)));
@@ -417,10 +417,6 @@ container.textContent = await llm.reply(userMessage);
 - [ ] Secrets and other users' data kept out of prompts
 - [ ] Tool/agent permissions scoped; destructive actions require confirmation
 ```
-## See Also
-
-For detailed security checklists and pre-commit verification steps, see `references/security-checklist.md`.
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

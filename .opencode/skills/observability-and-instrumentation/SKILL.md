@@ -54,7 +54,7 @@ Rule of thumb: metrics tell you **that** something is wrong, traces tell you **w
 Log events, not prose. Every log line is a JSON object with a stable event name and machine-readable fields:
 
 ```typescript
-// BAD: string interpolation — unqueryable, inconsistent
+// BAD: String interpolation is unqueryable and inconsistent
 logger.info(`Payment ${id} failed for user ${userId} after ${n} retries`);
 
 // GOOD: stable event name + structured fields
@@ -121,7 +121,7 @@ Track averages never, percentiles always: an average hides the 1% of users havin
 Use OpenTelemetry — it's the vendor-neutral standard, and auto-instrumentation covers HTTP, gRPC, and common DB clients with near-zero code:
 
 ```typescript
-// tracing.ts — must be imported before anything else
+// Import tracing.ts before anything else
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
@@ -200,4 +200,4 @@ After instrumenting a feature, confirm:
 - [ ] Every new alert is symptom-based, has a runbook link, and was test-fired once
 - [ ] An induced failure in staging was located via telemetry alone, without reading the source
 
-For the at-a-glance version of this list, including the pre-launch instrumentation gate, see `references/observability-checklist.md`.
+Use the checklist in this skill as the canonical instrumentation gate.

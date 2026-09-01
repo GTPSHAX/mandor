@@ -11,10 +11,11 @@ Pendekatan ini cocok untuk developer yang ingin membangun project kompleks denga
 ## Fitur Utama
 
 - 6 agents: 1 primary (Mandor sebagai koordinator) + 5 subagent spesialis (`project-design`, `write-code`, `code-reviewer`, `security-auditor`, `memorize`)
-- 8 slash commands untuk workflow umum (build, review, ship, spec, test, dll)
+- 7 slash commands OpenCode berbasis Markdown untuk workflow umum (build, review, ship, spec, test, dll)
 - 24 skill yang dapat direkomendasikan oleh Mandor ke subagent sesuai kebutuhan task
-- Workflow wajib: design-before-code, memory persistence setelah perubahan, sinkronisasi status todo antar subagent, pemilihan mode eksekusi di awal sesi
+- Workflow wajib: design-before-code, memory-first, review six-axis, Doxygen compliance, user confirmation hard-stop, sinkronisasi todo, dan pemilihan mode eksekusi di awal sesi
 - Sistem rules: user menetapkan aturan operasional yang disimpan di `.mandor/agents/rules.md` dan dipatuhi semua agent; mandor tanya user saat instruksi bertolak belakang dengan aturan aktif
+- Least-privilege runtime permissions: memory edit di-scope ke `.mandor/**`, specialist task fan-out dibatasi, dan shell berisiko memerlukan approval
 - Disable 4 agent default OpenCode (`plan`, `build`, `general`, `explore`) - hanya pakai agent kustom Mandor
 - Memory project tersimpan lokal (di-gitignore, tidak dipublikasi)
 
@@ -22,23 +23,24 @@ Pendekatan ini cocok untuk developer yang ingin membangun project kompleks denga
 
 ```text
 .opencode/
-  opencode.jsonc        # config utama: schema, subagent_depth, disable agent default
+  opencode.jsonc        # config utama: schema, default_agent, subagent_depth, disable agent default
   agents/
     mandor.md           # primary agent - Project Manager, koordinator
     project-design.md   # subagent - merancang arsitektur sistem
     write-code.md       # subagent - menulis/mengedit/memperbaiki kode
-    code-reviewer.md    # subagent - review kode 5-axis
+    code-reviewer.md    # subagent - review kode six-axis + Doxygen gate
     security-auditor.md # subagent - audit keamanan mendalam
     memorize.md         # subagent - manajemen memory project
   commands/
-    build.toml          # implementasi inkremental: build, test, verify, commit
-    code-simplify.toml  # sederhanakan kode tanpa ubah behavior
-    planning.toml       # pecah kerja jadi task kecil verifiable
-    review.toml         # code review 5-axis
-    ship.toml           # pre-launch checklist + go/no-go decision
-    spec.toml           # spec-driven development
-    test.toml           # TDD workflow
-    webperf.toml        # web performance audit
+    build.md            # implementasi inkremental; commit butuh approval terpisah
+    code-simplify.md    # sederhanakan kode tanpa ubah behavior
+    planning.md         # pecah kerja jadi task kecil verifiable
+    review.md           # code review six-axis + Doxygen gate
+    ship.md             # readiness checklist + go/no-go, bukan deploy
+    spec.md             # spec-driven development
+    test.md             # TDD workflow
+  references/
+    definition-of-done.md # completion gate bersama
   skills/               # 24 direktori, masing-masing berisi SKILL.md
     api-and-interface-design/
     browser-testing-with-devtools/
@@ -90,26 +92,25 @@ Setelah `opencode` berjalan, Mandor otomatis menjadi primary agent. Mandor akan 
 | Agent | Mode | Peran | Catatan Kunci |
 |---|---|---|---|
 | `mandor` | primary | Project Manager, koordinator | Tidak menulis kode sendiri (Mode Delegasi default); mendelegasikan ke subagent. Temperature 0.1 |
-| `project-design` | subagent | Merancang arsitektur sistem | Wajib dipanggil sebelum `write-code` untuk kode baru |
-| `write-code` | subagent | Menulis/mengedit/memperbaiki kode | Menerima konteks lengkap dari mandor; sinkronkan status todo ke file shared via memorize; update memory setelah perubahan |
-| `code-reviewer` | subagent | Review kode menyeluruh | 5 axis: correctness, readability, architecture, security, performance |
-| `security-auditor` | subagent | Audit keamanan mendalam | Vulnerability, threat modeling, hardening |
-| `memorize` | subagent | Manajemen memory project | Satu-satunya pemilik direktori `.mandor/` (memory + rules.md); kelola rules (Save/Load/Remove) |
+| `project-design` | subagent | Merancang arsitektur sistem | Wajib dipanggil sebelum `write-code` untuk kode baru pada Mode Delegasi |
+| `write-code` | subagent | Menulis/mengedit/memperbaiki kode | Shell default `ask`; read-only Git di-allow; task hanya `memorize` atau `write-code` dengan approval |
+| `code-reviewer` | subagent | Review kode menyeluruh | 6 axis + Doxygen gate; edit deny, bash ask, task hanya `memorize` |
+| `security-auditor` | subagent | Audit keamanan mendalam | Edit deny, bash ask, task hanya `memorize` |
+| `memorize` | subagent | Manajemen memory project | Edit secara teknis dibatasi ke `.mandor/**`; kelola memory, todo, dan rules |
 
 ## Commands
 
 | Command | Deskripsi |
 |---|---|
-| `/build` | Implementasi inkremental: build, test, verify, commit. Argumen `auto` jalankan seluruh plan dengan satu approval |
+| `/build` | Implementasi inkremental: build, test, verify. Commit selalu membutuhkan approval terpisah |
 | `/code-simplify` | Sederhanakan kode untuk clarity tanpa mengubah behavior |
 | `/planning` | Pecah kerja jadi task kecil verifiable dengan acceptance criteria + dependency ordering |
-| `/review` | Code review 5-axis: correctness, readability, architecture, security, performance |
-| `/ship` | Pre-launch checklist via parallel fan-out specialist persona, lalu go/no-go decision |
+| `/review` | Code review 6-axis dengan Doxygen compliance gate |
+| `/ship` | Readiness assessment melalui code review + security review, lalu GO/NO-GO; tidak menjalankan deploy |
 | `/spec` | Spec-driven development: tulis spec terstruktur sebelum kode |
 | `/test` | TDD workflow: failing test, implement, verify. Untuk bug pakai Prove-It pattern |
-| `/webperf` | Web performance audit via web-performance-auditor persona |
 
-> Catatan: "persona" pada `/ship` dan `/webperf` adalah peran inline di dalam file command, bukan subagent terpisah. Total tetap 6 agent.
+`/ship` menggunakan dua spesialis yang benar-benar tersedia (`code-reviewer` dan `security-auditor`) pada Mode Delegasi. Tidak ada agent fiktif `test-engineer` atau `web-performance-auditor`.
 
 ## Skills
 
@@ -148,19 +149,19 @@ Alur kerja Mandor dari awal sesi sampai respond ke user:
 
 ```text
 1. Initial chat
-   Mandor menyapa user, inisialisasi tools reference (memorize fetch docs OpenCode),
-   load memory + load rules, dan tanyakan pilihan mode eksekusi.
+   Mandor menginisialisasi tools reference melalui memorize, load memory + rules,
+   lalu selalu menanyakan pilihan mode eksekusi.
 
 2. Pilih mode
    User pilih: Mode Delegasi (default) atau Mode Langsung.
 
 3. Eksekusi task (Mode Delegasi)
    a. project-design    -> rancang arsitektur (wajib sebelum kode baru)
-   b. write-code        -> implementasi kode berdasarkan rancangan
-   c. code-reviewer     -> review 5-axis (opsional, sesuai kebutuhan)
+   b. write-code        -> implementasi dan sinkronkan status todo melalui memorize
+   c. code-reviewer     -> review 6-axis + Doxygen gate (wajib setelah perubahan)
    d. security-auditor  -> audit keamanan (opsional, sesuai kebutuhan)
-   e. memorize          -> catat perubahan ke memory project (wajib setelah batch perubahan)
-   f. write-code        -> sinkronkan status todo ke file shared via memorize (wajib setelah batch)
+   e. write-code        -> perbaiki finding blocking lalu ulangi review bila diperlukan
+   f. memorize          -> catat batch final ke memory project
 
 4. Respond ke user
    Mandor rangkum hasil delegasi dan laporkan balik.
@@ -174,7 +175,33 @@ Mandor menyediakan dua mode eksekusi yang dipilih di awal sesi:
 
 - **Mode Delegasi (default)**: Mandor hanya berperan sebagai koordinator. Semua implementasi, review, dan audit didelegasikan ke subagent sesuai keahlian. Memory project tetap dikelola oleh `memorize`. Mode ini memberikan pemisahan tanggung jawab yang jelas.
 
-- **Mode Langsung**: Mandor mengerjakan task sendiri tanpa delegasi ke subagent, kecuali update memory dan pengelolaan rules yang tetap didelegasikan ke `memorize`. Cocok untuk task kecil yang tidak memerlukan spesialisasi subagent.
+- **Mode Langsung**: Mandor mengerjakan implementasi, review, dan audit sendiri tanpa delegasi spesialis; update memory dan rules tetap melalui `memorize`. Mode ini dapat dipilih untuk scope apa pun oleh user dan tidak dipilih otomatis berdasarkan ukuran task.
+
+## Prinsip Operasional
+
+### User confirmation hard-stop
+
+Keputusan penting ditentukan oleh dampaknya, bukan oleh apakah agent merasa bingung. Pilihan stack/dependency/database, public contract, architecture, namespace utama, security boundary, penghapusan, tindakan destructive, perubahan behavior di luar requirement, material trade-off, external operation, dan perluasan scope harus berhenti sampai user memberi keputusan eksplisit. Subagent mengembalikan `DECISION REQUIRED`; Mandor menjadi pintu utama untuk bertanya kepada user.
+
+Commit, push, merge, tag, release, dan deploy tidak pernah tersirat oleh approval implementasi. `/build` meminta approval commit secara terpisah setelah perubahan dan bukti verifikasi tersedia.
+
+### Memory-first
+
+Mandor memuat memory melalui `memorize` dan meneruskan ringkasan relevan ke subagent. Subagent tidak memindai ulang seluruh codebase bila konteks sudah tersedia, tetapi tetap membaca file aktual yang akan diedit atau direview. Konflik memory dengan file aktual wajib dilaporkan; file aktual menjadi bukti kondisi terbaru dan memory disinkronkan setelah perubahan.
+
+### Permission hardening
+
+`memorize` hanya dapat mengedit `.mandor/**`. `project-design`, `code-reviewer`, dan `security-auditor` hanya dapat meluncurkan `memorize`; recursive `write-code` tetap memerlukan approval. Pada Mandor dan `write-code`, shell default adalah `ask`, sedangkan perintah Git read-only yang terdaftar dapat berjalan tanpa prompt. Permission runtime melengkapi confirmation hard-stop dan tidak menggantikannya.
+
+### Namespace/class-first
+
+Implementasi diprioritaskan di dalam namespace, class, struct, package, atau module dengan boundary yang jelas. Class dipakai bila memberi enkapsulasi, ownership, polymorphism, dependency management, atau manfaat struktural nyata; wrapper class kosong dilarang. Penyimpangan struktural penting memerlukan persetujuan user.
+
+### Doxygen
+
+Untuk public API bahasa C-like dalam scope Doxygen, format default adalah Javadoc-style `/** ... */` dengan `@brief` dan tag relevan yang cocok dengan signature/behavior aktual. Documentation comment, implementation comment, file-level documentation, dan komentar config/markup diperlakukan terpisah. `write-code` memiliki completion gate, sedangkan `code-reviewer` memberi `PASS`, `FAIL`, atau reasoned `N/A`; setiap `FAIL` adalah Important dan menghasilkan `REQUEST CHANGES`.
+
+Setelah mengubah config, agent, command, atau skill, restart OpenCode agar konfigurasi baru dimuat.
 
 ## License
 

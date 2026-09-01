@@ -7,7 +7,7 @@ description: Conducts multi-axis code review. Use before merging any change. Use
 
 ## Overview
 
-Multi-dimensional code review with quality gates. Every change gets reviewed before merge — no exceptions. Review covers five axes: correctness, readability, architecture, security, and performance.
+Multi-dimensional code review with quality gates. Every change gets reviewed before merge. Review covers six axes: correctness, readability, architecture, security, performance, and style & conventions.
 
 **The approval standard:** Approve a change when it definitely improves overall code health, even if it isn't perfect. Perfect code doesn't exist — the goal is continuous improvement. Don't block a change because it isn't exactly how you would have written it. If it improves the codebase and follows the project's conventions, approve it.
 
@@ -19,7 +19,7 @@ Multi-dimensional code review with quality gates. Every change gets reviewed bef
 - When refactoring existing code
 - After any bug fix (review both the fix and the regression test)
 
-## The Five-Axis Review
+## The Six-Axis Review
 
 Every review evaluates code across these dimensions:
 
@@ -84,6 +84,20 @@ For detailed profiling and optimization, see `performance-optimization`. Does th
 - Any unnecessary re-renders in UI components?
 - Any missing pagination on list endpoints?
 - Any large objects created in hot paths?
+
+### 6. Style & Conventions
+
+Does the change follow documented project conventions rather than reviewer preference?
+
+- Are names, file paths, and module boundaries consistent with project evidence?
+- Is namespace/class-first followed where the language supports it, without empty wrapper classes?
+- Are documentation comments distinct from implementation comments?
+- For public APIs in C-like Doxygen scope, is the canonical `/** ... */` block complete and accurate?
+- Do required Doxygen blocks contain `@brief` and only relevant, signature-accurate `@param`, `@tparam`, `@return`, `@throws`/`@exception`, and contract tags?
+- Are code comments ASCII/QWERTY-only, UTF-8 encoded, non-decorative, and written in the codebase language?
+- Is `@file` used when needed for global Doxygen entities, without automatically adding author/date/license metadata?
+
+For every public API created or changed, record Doxygen `PASS`, `FAIL`, or reasoned `N/A`. Every `FAIL` is an **Important** finding and forces `REQUEST CHANGES`; do not approve while a `FAIL` remains.
 
 ## Structural Remedies
 
@@ -163,7 +177,7 @@ Tests reveal intent and coverage:
 
 ### Step 3: Review the Implementation
 
-Walk through the code with the five axes in mind:
+Walk through the code with the six axes in mind:
 
 ```
 For each file changed:
@@ -172,19 +186,18 @@ For each file changed:
 3. Architecture: Does this fit the system?
 4. Security: Any vulnerabilities?
 5. Performance: Any bottlenecks?
+6. Style & Conventions: Does it meet project and Doxygen requirements?
 ```
 
 ### Step 4: Categorize Findings
 
 Label every comment with its severity so the author knows what's required vs optional:
 
-| Prefix | Meaning | Author Action |
-|--------|---------|---------------|
-| *(no prefix)* | Required change | Must address before merge |
-| **Critical:** | Blocks merge | Security vulnerability, data loss, broken functionality |
-| **Nit:** | Minor, optional | Author may ignore — formatting, style preferences |
-| **Optional:** / **Consider:** | Suggestion | Worth considering but not required |
-| **FYI** | Informational only | No action needed — context for future reference |
+| Severity | Meaning | Author Action |
+|----------|---------|---------------|
+| **Critical** | Security vulnerability, data loss, or broken functionality | Must fix before merge |
+| **Important** | Wrong contract/abstraction, missing required test/error handling, hard convention violation, or Doxygen FAIL | Must fix before merge |
+| **Suggestion** | Non-blocking improvement with no violated hard requirement | Consider; does not block approval |
 
 This prevents authors from treating all feedback as mandatory and wasting time on optional suggestions.
 
@@ -295,7 +308,7 @@ Part of code review is dependency review:
 2. **One dependency per change.** Upgrade and merge them individually (or in small related groups). When a bulk bump breaks the build, you've lost which package did it; a single-package change makes the cause obvious and the revert clean.
 3. **Let the tests decide.** The upgrade is verified by a green suite before *and* after, not by "it installed." If coverage around the dependency's behavior is thin, that gap is the real finding — add a test first.
 4. **Mind the transitive graph.** Most installed packages are ones nobody chose directly. Review the lockfile diff, not just `package.json`; a single direct bump can pull in dozens of indirect changes.
-5. **Keep the lockfile honest.** Commit it, review its diff, and never hand-edit it. The lockfile is the thing that actually pins what ships.
+5. **Keep the lockfile honest.** Include it in the proposed commit after explicit approval, review its diff, and never hand-edit it. The lockfile is the thing that actually pins what ships.
 
 For triaging `npm audit` findings and supply-chain risk (typosquatting, compromised maintainers), follow the `security-and-hardening` skill — this section covers the upgrade *workflow*, that one covers the security verdict.
 
@@ -337,20 +350,28 @@ For triaging `npm audit` findings and supply-chain risk (typosquatting, compromi
 - [ ] No unbounded operations
 - [ ] Pagination on list endpoints
 
+### Style & Conventions
+- [ ] Project naming and structure conventions followed
+- [ ] Namespace/class-first followed or user-approved deviation recorded
+- [ ] Implementation comments explain non-obvious intent rather than restating code
+- [ ] Code comments use ASCII/QWERTY characters and the codebase language
+
+### Doxygen Compliance
+- [ ] Public API inventory is complete
+- [ ] Each entity is marked PASS, FAIL, or reasoned N/A
+- [ ] Required tags match actual signatures and behavior
+- [ ] No Doxygen FAIL remains
+
 ### Verification
-- [ ] Tests pass
-- [ ] Build succeeds
-- [ ] Manual verification done (if applicable)
+- [ ] Tests labeled verified directly / verified from provided evidence / not verified
+- [ ] Build labeled verified directly / verified from provided evidence / not verified
+- [ ] Doxygen execution labeled verified directly / verified from provided evidence / not verified / N/A
+- [ ] Manual verification evidence recorded when applicable
 
 ### Verdict
 - [ ] **Approve** — Ready to merge
 - [ ] **Request changes** — Issues must be addressed
 ```
-## See Also
-
-- For detailed security review guidance, see `references/security-checklist.md`
-- For performance review checks, see `references/performance-checklist.md`
-
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -387,9 +408,8 @@ For triaging `npm audit` findings and supply-chain risk (typosquatting, compromi
 After review is complete:
 
 - [ ] All Critical issues are resolved
-- [ ] All Required (no-prefix) changes are resolved or explicitly deferred with justification
-- [ ] Tests pass
-- [ ] Build succeeds
+- [ ] All Important issues, including every Doxygen FAIL, are resolved
+- [ ] Test and build status is reported with honest evidence provenance
 - [ ] The verification story is documented (what changed, how it was verified)
 - [ ] Dependency upgrades were reviewed against their changelog, isolated per package, and verified by a green suite with the lockfile diff reviewed
 

@@ -113,7 +113,7 @@ it('sets completedAt when task is completed', async () => {
   const completed = await taskService.completeTask(task.id);
 
   expect(completed.status).toBe('completed');
-  expect(completed.completedAt).toBeInstanceOf(Date);  // This fails → bug confirmed
+  expect(completed.completedAt).toBeInstanceOf(Date);  // This fails, so the bug is confirmed
 });
 
 // Step 2: Fix the bug
@@ -124,7 +124,7 @@ export async function completeTask(id: string): Promise<Task> {
   });
 }
 
-// Step 3: Test passes → bug fixed, regression guarded
+// Step 3: The passing test proves the fix and guards the regression
 ```
 
 ## The Test Pyramid
@@ -341,10 +341,6 @@ then verifies the test passes.
 ```
 
 This separation ensures the test is written without knowledge of the fix, making it more robust.
-
-## See Also
-
-For detailed testing patterns, examples, and anti-patterns across frameworks, see `references/testing-patterns.md`.
 
 ## Common Rationalizations
 

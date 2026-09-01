@@ -15,6 +15,10 @@ Always. Every code change flows through git.
 
 ## Core Principles
 
+### User Authority Gate
+
+Commit, push, merge, tag, release, and deploy are separate operations that always require explicit user approval for their exact scope. Approval to implement or run tests is not commit approval. Before requesting commit approval, show the files, proposed number/grouping of commits, and messages. Never use `git add -A` when unrelated user changes may exist. The examples below describe version-control structure only; they do not grant authority to execute an operation.
+
 ### Trunk-Based Development (Recommended)
 
 Keep `main` always deployable. Work in short-lived feature branches that merge back within 1-3 days. Long-lived development branches are hidden costs — they diverge, create merge conflicts, and delay integration. DORA research consistently shows trunk-based development correlates with high-performing engineering teams.
@@ -33,11 +37,11 @@ This is the recommended default. Teams using gitflow or long-lived branches can 
 
 ### 1. Commit Early, Commit Often
 
-Each successful increment gets its own commit. Don't accumulate large uncommitted changes.
+Each successful increment may become an atomic commit after explicit user approval. Do not silently accumulate or silently commit changes.
 
 ```
 Work pattern:
-  Implement slice → Test → Verify → Commit → Next slice
+  Implement slice → Test → Verify → Ask → Commit if approved → Next slice
 
 Not this:
   Implement everything → Hope it works → Giant commit

@@ -9,6 +9,8 @@ description: Automates CI/CD pipeline setup. Use when setting up or modifying bu
 
 Automate quality gates so that no change reaches production without passing tests, lint, type checking, and build. CI/CD is the enforcement mechanism for every other skill — it catches what humans and agents miss, and it does so consistently on every single change.
 
+**Authority gate:** Designing or editing pipeline configuration does not authorize running a commit, push, merge, tag, release, deployment, migration, rollback, feature-flag change, or external-service operation. Each exact operation requires separate explicit user approval. Examples below describe possible pipeline behavior; they do not grant an agent authority to execute it.
+
 **Shift Left:** Catch problems as early in the pipeline as possible. A bug caught in linting costs minutes; the same bug caught in production costs hours. Move checks upstream — static analysis before tests, tests before staging, staging before production.
 
 **Faster is Safer:** Smaller batches and more frequent releases reduce risk, not increase it. A deployment with 3 changes is easier to debug than one with 30. Frequent releases build confidence in the release process itself.
@@ -175,16 +177,16 @@ Copy the failure output
 Feed it to the agent:
 "The CI pipeline failed with this error:
 [paste specific error]
-Fix the issue and verify locally before pushing again."
+Fix the issue and verify locally; request separate approval before pushing again."
     │
     ▼
-Agent fixes → pushes → CI runs again
+Agent fixes → asks for push approval → pushes only if approved → CI runs again
 ```
 
 **Key patterns:**
 
 ```
-Lint failure → Agent runs `npm run lint --fix` and commits
+Lint failure → Agent runs `npm run lint --fix`, verifies, then requests commit approval
 Type error  → Agent reads the error location and fixes the type
 Test failure → Agent follows debugging-and-error-recovery skill
 Build error → Agent checks config and dependencies
@@ -304,7 +306,7 @@ Designate someone responsible for keeping CI green. When the build breaks, the B
 - **Required reviews:** At least 1 approval before merge
 - **Required status checks:** CI must pass before merge
 - **Branch protection:** No force-pushes to main
-- **Auto-merge:** If all checks pass and approved, merge automatically
+- **Merge gate:** Passing checks is not merge authority; require explicit approval for the exact merge operation
 
 ## CI Optimization
 
