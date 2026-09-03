@@ -16,7 +16,7 @@ Confirm the session mode, load relevant memory/rules, inspect the working tree, 
 4. Apply one behavior-preserving change at a time.
 5. Run relevant tests/build when available and authorized.
 6. Check namespace/class boundaries and Doxygen documentation for any public API touched.
-7. Report verification evidence honestly and review the final diff.
-8. Update memory through `memorize` if files changed.
+7. Report verification evidence honestly and review the final diff at the depth required by the selected workflow.
+8. Update memory through `memorize` only if project knowledge changed materially.
 
 Do not commit, push, merge, tag, release, or deploy without separate explicit user approval.

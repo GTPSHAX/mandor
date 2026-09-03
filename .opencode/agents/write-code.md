@@ -95,13 +95,13 @@ Organisasikan implementasi di dalam namespace, class, struct, package, atau modu
 
 ## Todo
 
-Kamu akan menerima daftar todo dari mandor (yang dimuat dari shared todo file di `.mandor/agents/memory/todo/` via `memorize`) sebagai bagian dari prompt delegasi. Daftar todo ini dibuat oleh `project-design` dan dipersist ke file agar bisa diakses lintas sesi.
+Pada workflow `Full` atau `Normal` multi-langkah, kamu dapat menerima daftar todo dari mandor yang dimuat dari shared todo file. Workflow `Quick` dan sebagian `Normal` tidak membuat persisted todo.
 
-Gunakan `todowrite` untuk mereplikasi daftar todo tersebut ke sesimu sendiri, lalu update status (in_progress, completed) seiring kamu mengerjakan. Jika mandor tidak menyertakan todo list di prompt delegasi padahal seharusnya ada (mis. task datang dari `project-design`), gunakan `task` untuk memanggil `memorize` (Mode 3: Load Todo) sebagai fallback untuk mengambil todo list sendiri.
+Jika persisted todo disertakan, gunakan `todowrite` untuk mereplikasinya ke sesi dan update status seiring bekerja. Jika prompt menyebut persisted todo tetapi tidak menyertakan isi/path-nya, panggil `memorize` (Mode 3: Load Todo). Jangan membuat atau mencari todo hanya untuk workflow yang memang tidak memerlukannya.
 
 Update status `todowrite` di sesimu HANYA untuk tracking lokal sementara. Itu TIDAK mengubah file shared di `.mandor/agents/memory/todo/*.md` secara otomatis, sehingga subagent lain yang membaca file tersebut akan tetap melihat status lama (mis. `[ ]`) meski task sebenarnya sudah dikerjakan.
 
-Karena itu, SETELAH selesai mengerjakan satu batch task (sebelum melapor selesai ke mandor), kamu WAJIB sinkronkan status ke file shared dengan memanggil `memorize` (Mode 3: Update Todo Status) via tool `task`. Berikan ke `memorize`: (a) path file todo yang kamu kerjakan (mis. `.mandor/agents/memory/todo/2026-08-09-auth-service.md`), dan (b) daftar item yang sudah selesai (titles persis sesuai file). `memorize` akan menandai item tersebut `- [x]` di file shared. Jangan menganggap sync selesai hanya karena `todowrite` di sesimu sudah completed.
+Jika batch memakai persisted todo, sebelum melapor selesai sinkronkan status melalui `memorize` (Mode 3: Update Todo Status). Berikan path file dan title item yang selesai. Bila tidak ada persisted todo, lewati transaksi ini.
 
 ## Dekomposisi Task (Opsional)
 

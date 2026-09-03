@@ -6,14 +6,14 @@ Primary agent config untuk OpenCode yang berperan sebagai Project Manager - meng
 
 Mandor adalah konfigurasi agent untuk OpenCode yang mengadopsi pendekatan multi-agent. Alih-alih satu agent tunggal yang mencoba mengerjakan semuanya, Mandor berperan sebagai koordinator (Project Manager) yang mendelegasikan pekerjaan ke subagent sesuai keahlian masing-masing: perancangan arsitektur, penulisan kode, review, audit keamanan, dan manajemen memory project.
 
-Pendekatan ini cocok untuk developer yang ingin membangun project kompleks dengan bantuan AI, tetapi ingin menjaga pemisahan tanggung jawab antar peran - sehingga setiap subagent fokus pada satu domain. Mandor memastikan workflow tetap terstruktur: rancangan dibuat sebelum kode ditulis, setiap perubahan dicatat ke memory project, dan pemilihan mode eksekusi disesuaikan dengan preferensi user.
+Pendekatan ini cocok untuk developer yang ingin membangun project dengan bantuan AI sambil menjaga pemisahan tanggung jawab antar peran. Mandor memilih kedalaman workflow sesuai risiko: pekerjaan kecil berjalan singkat, sedangkan perubahan kompleks tetap memakai design, review, audit, dan memory yang terstruktur.
 
 ## Fitur Utama
 
 - 6 agents: 1 primary (Mandor sebagai koordinator) + 5 subagent spesialis (`project-design`, `write-code`, `code-reviewer`, `security-auditor`, `memorize`)
 - 7 slash commands OpenCode berbasis Markdown untuk workflow umum (build, review, ship, spec, test, dll)
 - 24 skill yang dapat direkomendasikan oleh Mandor ke subagent sesuai kebutuhan task
-- Workflow wajib: design-before-code, memory-first, review six-axis, Doxygen compliance, user confirmation hard-stop, sinkronisasi todo, dan pemilihan mode eksekusi di awal sesi
+- Workflow adaptif tiga tingkat (`Quick`, `Normal`, `Full`), memory terarah, review proporsional, Doxygen compliance saat relevan, user confirmation hard-stop, dan pemilihan mode eksekusi di awal sesi
 - Sistem rules: user menetapkan aturan operasional yang disimpan di `.mandor/agents/rules.md` dan dipatuhi semua agent; mandor tanya user saat instruksi bertolak belakang dengan aturan aktif
 - Least-privilege runtime permissions: memory edit di-scope ke `.mandor/**`, specialist task fan-out dibatasi, dan shell berisiko memerlukan approval
 - Disable 4 agent default OpenCode (`plan`, `build`, `general`, `explore`) - hanya pakai agent kustom Mandor
@@ -92,11 +92,11 @@ Setelah `opencode` berjalan, Mandor otomatis menjadi primary agent. Mandor akan 
 | Agent | Mode | Peran | Catatan Kunci |
 |---|---|---|---|
 | `mandor` | primary | Project Manager, koordinator | Tidak menulis kode sendiri (Mode Delegasi default); mendelegasikan ke subagent. Temperature 0.1 |
-| `project-design` | subagent | Merancang arsitektur sistem | Wajib dipanggil sebelum `write-code` untuk kode baru pada Mode Delegasi |
+| `project-design` | subagent | Merancang arsitektur sistem | Wajib pada Full; digunakan pada Normal bila keputusan desain/handoff memberi nilai |
 | `write-code` | subagent | Menulis/mengedit/memperbaiki kode | Shell default `ask`; read-only Git di-allow; task hanya `memorize` atau `write-code` dengan approval |
 | `code-reviewer` | subagent | Review kode menyeluruh | 6 axis + Doxygen gate; edit deny, bash ask, task hanya `memorize` |
 | `security-auditor` | subagent | Audit keamanan mendalam | Edit deny, bash ask, task hanya `memorize` |
-| `memorize` | subagent | Manajemen memory project | Edit secara teknis dibatasi ke `.mandor/**`; kelola memory, todo, dan rules |
+| `memorize` | subagent | Manajemen konteks project | Kelola memory, todo, rules, dan query terarah tools reference di `.mandor/**` |
 
 ## Commands
 
@@ -155,13 +155,11 @@ Alur kerja Mandor dari awal sesi sampai respond ke user:
 2. Pilih mode
    User pilih: Mode Delegasi (default) atau Mode Langsung.
 
-3. Eksekusi task (Mode Delegasi)
-   a. project-design    -> rancang arsitektur (wajib sebelum kode baru)
-   b. write-code        -> implementasi dan sinkronkan status todo melalui memorize
-   c. code-reviewer     -> review 6-axis + Doxygen gate (wajib setelah perubahan)
-   d. security-auditor  -> audit keamanan (opsional, sesuai kebutuhan)
-   e. write-code        -> perbaiki finding blocking lalu ulangi review bila diperlukan
-   f. memorize          -> catat batch final ke memory project
+3. Mandor memilih tingkat workflow
+   a. Quick  -> implementasi, verifikasi relevan, self-review
+   b. Normal -> design ringan bila perlu, implementasi, targeted test/review
+   c. Full   -> design formal, persisted todo, implementasi, six-axis review,
+               security audit bila sensitif, remediation, sinkronisasi memory
 
 4. Respond ke user
    Mandor rangkum hasil delegasi dan laporkan balik.
@@ -188,6 +186,8 @@ Commit, push, merge, tag, release, dan deploy tidak pernah tersirat oleh approva
 ### Memory-first
 
 Mandor memuat memory melalui `memorize` dan meneruskan ringkasan relevan ke subagent. Subagent tidak memindai ulang seluruh codebase bila konteks sudah tersedia, tetapi tetap membaca file aktual yang akan diedit atau direview. Konflik memory dengan file aktual wajib dilaporkan; file aktual menjadi bukti kondisi terbaru dan memory disinkronkan setelah perubahan.
+
+`tools-reference.md` dikelola melalui `memorize` Mode 5 (`Refresh` dan `Query`). Reference digunakan secara terarah saat Mandor atau subagent perlu memilih tool, memahami parameter/permission, atau membedakan tool yang mirip. Hanya section yang relevan yang dibaca dan diteruskan; tool rutin tidak memicu lookup berulang. Schema tool runtime tetap menjadi sumber terbaru bila berbeda dari reference.
 
 ### Permission hardening
 

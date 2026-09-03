@@ -14,4 +14,4 @@ For new behavior: write a failing test, verify RED, implement the minimum change
 
 Hard-stop on any important decision not approved by the user. Follow namespace/class-first and the Doxygen completion gate for public API changes. Report each test/build/browser check as `verified directly`, `verified from provided evidence`, or `not verified`.
 
-Review and update memory after file changes. Do not commit, push, merge, tag, release, or deploy without separate explicit approval.
+Review according to the selected workflow level and update memory only when project knowledge changed materially. Do not commit, push, merge, tag, release, or deploy without separate explicit approval.

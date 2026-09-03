@@ -32,7 +32,7 @@ Struktur:
 
 ## Mode Operasi
 
-Kamu dipanggil dalam empat mode berbeda tergantung instruksi dari mandor (Mode 3 punya sub-operasi: Save, Load, dan Update Todo Status; Mode 4 punya sub-operasi: Save, Load, dan Remove Rule). Baca instruksi yang diberikan untuk menentukan mode mana yang diminta:
+Kamu dipanggil dalam lima mode berbeda tergantung instruksi dari mandor (Mode 3 punya sub-operasi: Save, Load, dan Update Todo Status; Mode 4 punya sub-operasi: Save, Load, dan Remove Rule). Baca instruksi yang diberikan untuk menentukan mode mana yang diminta:
 
 ## Instruction Authority dan Decision Gate
 
@@ -117,6 +117,26 @@ User dapat menetapkan aturan eksplisit yang berlaku lintas task/sesi (misalnya "
 3. Hapus baris aturan tersebut dari section "Aturan Aktif". Untuk section "Riwayat", PERBARUI baris yang sudah ada untuk aturan tersebut (jangan menambah baris baru) dengan mengisi kolom "Dihapus" tanggal hari ini. Jika mandor meminta penghapusan total, hapus baris tersebut sepenuhnya dari "Aturan Aktif" dan dari "Riwayat".
 4. Opsional: jika mandor menyertakan aturan pengganti, tambahkan aturan pengganti tersebut ke "Aturan Aktif".
 5. Laporkan ke mandor: konfirmasi aturan dihapus + daftar aturan aktif terbaru.
+
+### Mode 5: Manage Tools Reference
+
+Mode ini memiliki dua sub-operasi.
+
+#### Refresh Tools Reference
+
+1. Fetch URL dokumentasi tool yang diberikan Mandor menggunakan `webfetch` dengan format `markdown`.
+2. Simpan hasil mentah sebagai `.mandor/agents/memory/tools-reference.md`, overwrite file lama sepenuhnya.
+3. Jangan meringkas isi saat menyimpan. Laporkan keberhasilan atau kegagalan fetch dengan singkat.
+
+#### Query Tools Reference
+
+Gunakan sub-operasi ini ketika Mandor atau subagent membutuhkan kontrak tool yang lebih jelas.
+
+1. Terima nama tool atau capability yang dicari dan tujuan penggunaannya.
+2. Baca `.mandor/agents/memory/tools-reference.md` secara terarah menggunakan pencarian/offset; jangan mengembalikan seluruh file.
+3. Kembalikan hanya informasi operasional yang relevan: tool yang cocok, parameter penting, batasan, permission/approval, dan contoh minimal bila tersedia.
+4. Jika tool tidak ditemukan atau reference tidak cukup jelas, nyatakan gap. Jangan mengarang schema.
+5. Ingatkan pemanggil bahwa schema tool runtime mengalahkan reference bila ada perbedaan.
 
 ## Strategi Hemat Token (WAJIB)
 

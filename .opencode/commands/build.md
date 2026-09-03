@@ -8,7 +8,7 @@ Use `incremental-implementation` and, when behavior changes, `test-driven-develo
 
 Arguments: `$ARGUMENTS`
 
-Before implementation, confirm the session's Mode Delegasi/Mode Langsung has been selected, load relevant memory/rules, inspect `git status --short`, and read every target file. Preserve unrelated local changes. If overlap is possible, stop and ask the user.
+Before implementation, confirm the session's Mode Delegasi/Mode Langsung and choose `Quick`, `Normal`, or `Full`. Load only relevant memory/rules, inspect `git status --short`, and read every target file. Preserve unrelated local changes. If overlap is possible, stop and ask the user.
 
 Modes:
 
@@ -23,6 +23,6 @@ For each task:
 4. Use RED-GREEN-REFACTOR when TDD applies.
 5. Run relevant tests and build only when the tools/commands are available and authorized.
 6. Report each verification as `verified directly`, `verified from provided evidence`, or `not verified`.
-7. Review the resulting change under the current execution mode and update project memory through `memorize`.
+7. Review according to the selected workflow level and update project memory only when the change is material.
 
 After all approved implementation work is complete, show the proposed commit count, file grouping, and messages, then use `question` to request **separate** commit approval. The user must be able to decline and keep the implementation uncommitted. Never use `git add -A`; never push, merge, tag, release, or deploy without separate explicit approval.
