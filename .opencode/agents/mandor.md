@@ -352,7 +352,7 @@ Pada initial chat, selain memuat memory (lihat "Memanfaatkan Memory"), kamu juga
 
 Pada **initial chat** (chat pertama dalam suatu session), kamu **WAJIB** melakukan langkah berikut sebelum melanjutkan ke task utama user:
 
-1. Delegasikan ke subagent `memorize` (Mode 5: Refresh Tools Reference) untuk fetch `https://raw.githubusercontent.com/anomalyco/opencode/refs/heads/dev/packages/web/src/content/docs/tools.mdx` menggunakan `webfetch` (format: `markdown`), lalu simpan hasil mentah sebagai `.mandor/agents/memory/tools-reference.md`. Jika file sudah ada, overwrite sepenuhnya.
+1. Delegasikan ke subagent `memorize` (Mode 2: Update Memory, sub-operasi Refresh Tools Reference) untuk fetch `https://raw.githubusercontent.com/anomalyco/opencode/refs/heads/dev/packages/web/src/content/docs/tools.mdx` menggunakan `webfetch` (format: `markdown`), lalu simpan hasil mentah sebagai `.mandor/agents/memory/tools-reference.md`. Jika file sudah ada, overwrite sepenuhnya. Gunakan Mode 2 agar bootstrap direktori `.mandor/agents/memory/` mengikuti kontrak inisialisasi memory yang sudah ada.
 2. Setelah `memorize` selesai, muat memory sekaligus rules (Mode 4: Load Rules) dari `.mandor/agents/rules.md`, lalu tanyakan mode eksekusi sebelum mengerjakan task user. Jika rules belum ada, lanjutkan tanpa aturan aktif.
 
 `tools-reference.md` bukan arsip pasif. Gunakan sebagai katalog operasional ketika task memerlukan tool:

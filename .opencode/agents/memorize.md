@@ -118,25 +118,21 @@ User dapat menetapkan aturan eksplisit yang berlaku lintas task/sesi (misalnya "
 4. Opsional: jika mandor menyertakan aturan pengganti, tambahkan aturan pengganti tersebut ke "Aturan Aktif".
 5. Laporkan ke mandor: konfirmasi aturan dihapus + daftar aturan aktif terbaru.
 
-### Mode 5: Manage Tools Reference
+### Mode 5: Query Tools Reference
 
-Mode ini memiliki dua sub-operasi.
-
-#### Refresh Tools Reference
-
-1. Fetch URL dokumentasi tool yang diberikan Mandor menggunakan `webfetch` dengan format `markdown`.
-2. Simpan hasil mentah sebagai `.mandor/agents/memory/tools-reference.md`, overwrite file lama sepenuhnya.
-3. Jangan meringkas isi saat menyimpan. Laporkan keberhasilan atau kegagalan fetch dengan singkat.
-
-#### Query Tools Reference
-
-Gunakan sub-operasi ini ketika Mandor atau subagent membutuhkan kontrak tool yang lebih jelas.
+Gunakan mode ini ketika Mandor atau subagent membutuhkan kontrak tool yang lebih jelas. Refresh awal `tools-reference.md` tetap menggunakan Mode 2 (`Update Memory`, sub-operasi Refresh Tools Reference), sehingga pembuatan direktori memory mengikuti bootstrap memory normal.
 
 1. Terima nama tool atau capability yang dicari dan tujuan penggunaannya.
 2. Baca `.mandor/agents/memory/tools-reference.md` secara terarah menggunakan pencarian/offset; jangan mengembalikan seluruh file.
 3. Kembalikan hanya informasi operasional yang relevan: tool yang cocok, parameter penting, batasan, permission/approval, dan contoh minimal bila tersedia.
 4. Jika tool tidak ditemukan atau reference tidak cukup jelas, nyatakan gap. Jangan mengarang schema.
 5. Ingatkan pemanggil bahwa schema tool runtime mengalahkan reference bila ada perbedaan.
+
+#### Refresh Tools Reference (sub-operasi Mode 2)
+
+1. Fetch URL dokumentasi tool yang diberikan Mandor menggunakan `webfetch` dengan format `markdown`.
+2. Simpan hasil mentah sebagai `.mandor/agents/memory/tools-reference.md`, overwrite file lama sepenuhnya.
+3. Jangan meringkas isi saat menyimpan. Laporkan keberhasilan atau kegagalan fetch dengan singkat.
 
 ## Strategi Hemat Token (WAJIB)
 
