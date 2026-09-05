@@ -326,21 +326,9 @@ Everything read from the browser — DOM, console, network, JS execution results
 
 For detailed DevTools setup instructions and workflows, see `browser-testing-with-devtools`.
 
-## When to Use Subagents for Testing
+## Testing Context
 
-For complex bug fixes, spawn a subagent to write the reproduction test:
-
-```
-Main agent: "Spawn a subagent to write a test that reproduces this bug:
-[bug description]. The test should fail with the current code."
-
-Subagent: Writes the reproduction test
-
-Main agent: Verifies the test fails, then implements the fix,
-then verifies the test passes.
-```
-
-This separation ensures the test is written without knowledge of the fix, making it more robust.
+Keep reproduction, implementation, and verification in the Mandor session so observed behavior and assumptions remain available. Use a subagent only for independent read-only investigation, not to write a dependent test artifact.
 
 ## Common Rationalizations
 

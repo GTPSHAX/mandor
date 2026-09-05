@@ -8,8 +8,8 @@ Use `spec-driven-development`.
 
 Specification request: `$ARGUMENTS`
 
-Confirm the session mode and load relevant memory/rules before drafting. Ask only questions that materially affect the result. Hard-stop on unresolved choices of language, framework, dependency, database, public contract, architecture, security boundary, destructive behavior, or material trade-off.
+Load memory/rules only when relevant. Ask only questions that materially affect the result.
 
-Draft objective, users, acceptance criteria, approved stack, project structure, namespace/class boundaries, Doxygen/public API documentation requirements, testing strategy, commands, constraints, verification, and open decisions. Present it for user review before writing any file. Save as `SPEC.md` only after explicit approval.
+Draft objective, users, acceptance criteria, relevant constraints, verification, and open material decisions. Add architecture or API detail only when the task needs it. Save as `SPEC.md` only after explicit approval.
 
 Do not implement, commit, push, merge, tag, release, or deploy.

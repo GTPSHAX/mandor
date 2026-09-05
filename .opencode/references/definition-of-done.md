@@ -5,8 +5,8 @@ This file is the shared project-wide completion gate. Apply it proportionally to
 ## Workflow-aware gates
 
 - **Quick:** scope, actual target files, correctness, smallest relevant verification, working-tree preservation, and authority are required. Self-review is sufficient. Documentation and memory apply only when affected.
-- **Normal:** all applicable gates below are required, with targeted verification and targeted review. A separate reviewer is required when behavior, public API, or multiple production files change.
-- **Full:** all gates below are required. Six-axis review is separate from implementation, and security-sensitive work also requires security audit.
+- **Normal:** applicable gates below use targeted verification and focused self-review.
+- **Full:** all relevant gates below apply. Security review is required only for a changed attack surface.
 
 `Not applicable` is valid only with a concrete reason. Do not perform a check merely to fill a template.
 
@@ -18,10 +18,10 @@ This file is the shared project-wide completion gate. Apply it proportionally to
 4. **Structure** - Namespace/class-first was followed where supported, without empty wrapper classes. Any material deviation has explicit user approval.
 5. **Documentation** - Public APIs created or changed satisfy the language-appropriate documentation contract. C-like Doxygen targets pass the inventory, tag, signature, and accuracy checks.
 6. **Verification** - Relevant tests, build, lint, type checks, runtime checks, and Doxygen were run when available and authorized. Each result is labeled `verified directly`, `verified from provided evidence`, or `not verified`; unavailable checks are not invented.
-7. **Review** - Review depth matches the workflow level. Normal/Full work has no unresolved blocking finding; Full work uses the six-axis contract. Security-sensitive work has no unresolved Critical or High security finding.
+7. **Review** - No proven, reachable, material blocking defect remains. Hypothetical and out-of-scope risks do not block completion.
 8. **Working tree** - User changes were preserved. No broad staging, destructive reset, or unrelated file absorption occurred.
 9. **Authority** - No commit, push, merge, tag, release, deploy, migration, or external-service change occurred without explicit approval for that exact operation.
-10. **Memory** - Material project knowledge was synchronized through `memorize`. Shared todo status was synchronized only when a persisted todo was created. Cosmetic/local Quick changes do not require a memory transaction.
+10. **Memory** - Material project knowledge is synchronized once through `project-memory` when needed. Cosmetic/local changes require no memory transaction. There is no persisted todo.
 
 ## Incomplete verification
 

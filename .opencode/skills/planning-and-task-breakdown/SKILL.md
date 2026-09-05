@@ -30,7 +30,7 @@ Before writing any code, operate in read-only mode:
 - Map dependencies between components
 - Note risks and unknowns
 
-**Do NOT write code during planning.** Present the plan for human approval before saving `tasks/plan.md` and `tasks/todo.md`; the slash-command invocation alone does not approve architectural choices.
+**Do NOT write code during planning.** Present the plan for human approval. Save `tasks/plan.md` only when the user explicitly requests a persisted plan; do not create a separate todo file.
 
 ### Step 2: Identify the Dependency Graph
 
@@ -143,7 +143,7 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 ## Output Files
 
 - **Plan document:** After approval, save the implementation plan to `tasks/plan.md`.
-- **Task list:** After approval, save the checklist-style task list to `tasks/todo.md`.
+- **Persistence:** Keep execution steps in the current session. Save only `tasks/plan.md` when explicitly requested.
 
 Create the `tasks/` directory if it does not exist. These paths are the convention expected by the `/build` command and other downstream tooling.
 
