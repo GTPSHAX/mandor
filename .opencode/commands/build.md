@@ -4,7 +4,7 @@ agent: mandor
 subtask: false
 ---
 
-Use `incremental-implementation` and, when behavior changes, `test-driven-development`.
+Follow Mandor's built-in implementation and verification workflow. Skills are optional references, not prerequisites.
 
 Arguments: `$ARGUMENTS`
 

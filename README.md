@@ -1,6 +1,6 @@
 # Mandor
 
-Primary engineering agent untuk OpenCode yang memegang context pekerjaan dalam satu session dan menggunakan skills secara on-demand.
+Primary engineering agent untuk OpenCode yang memegang context dan seluruh workflow inti dalam satu session.
 
 ## Konsep
 
@@ -9,10 +9,10 @@ Mandor sebelumnya memakai rantai subagent untuk design, implementasi, review, se
 Arsitektur sekarang memakai satu primary agent:
 
 ```text
-User -> Mandor -> skill yang relevan -> implementasi -> verifikasi -> selesai
+User -> Mandor -> implementasi -> verifikasi -> selesai
 ```
 
-Skills menambahkan pedoman tanpa memindahkan pekerjaan ke session baru. Mandor tetap memegang requirement, hasil eksplorasi, keputusan, perubahan kode, dan bukti verifikasi.
+Rules, memory, design, implementasi, debugging, testing, review, security, dan stopping rule ditanam langsung di `mandor.md`, sehingga selalu aktif. Skills hanya memberi detail domain tambahan.
 
 ## Workflow
 
@@ -34,7 +34,7 @@ Capability utama sudah tersedia sebagai skills:
 - security: `security-and-hardening`
 - memory/rules/tools reference: `project-memory`
 
-Mandor load maksimal satu skill utama pada satu waktu. Skill kedua digunakan hanya bila domain berbeda dan benar-benar memengaruhi hasil. Lifecycle skill tidak dijalankan berantai secara otomatis.
+Mandor tidak bergantung pada pemanggilan skill untuk perilaku wajib. Maksimal satu skill tambahan di-load bila detail domainnya benar-benar diperlukan; lifecycle skill tidak dijalankan berantai.
 
 ## Subagent
 
@@ -52,11 +52,11 @@ Maksimal satu remediation pass. Temuan baru di luar scope dilaporkan sebagai fol
 
 ## Memory
 
-Memory bersifat lazy dan dikelola langsung oleh Mandor melalui skill `project-memory`.
+Memory bersifat lazy dan dikelola langsung oleh Mandor berdasarkan aturan yang tertanam di `mandor.md`. Skill `project-memory` hanya referensi format tambahan.
 
 - Tidak ada persisted todo.
 - `.mandor/` tidak wajib ada pada project baru.
-- Rules wajib dibaca satu kali sebelum mutation pertama dan dibaca ulang setelah compaction.
+- Rules wajib dibaca satu kali sebelum mutation pertama. Setelah compaction, `rules.md` wajib menjadi file pertama yang dibaca ulang sebelum Mandor menjawab, mengambil keputusan, atau menjalankan mutation; ringkasan compaction tidak boleh menggantikannya.
 - Memory project dimuat secara terarah untuk area yang akan diubah.
 - Update dilakukan sekali sebelum respons final untuk perubahan material.
 - Pernyataan user yang jelas berlaku lintas task disimpan sebagai rule pada turn yang sama.

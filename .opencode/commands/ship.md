@@ -4,7 +4,7 @@ agent: mandor
 subtask: false
 ---
 
-Use `shipping-and-launch`.
+Follow Mandor's built-in completion, review, security, and authority rules. Specialist skills are optional.
 
 Ship assessment scope: `$ARGUMENTS`
 
@@ -12,7 +12,7 @@ This command assesses readiness only. It never commits, pushes, merges, tags, re
 
 Load relevant context, inspect the actual change, and preserve unrelated working-tree changes.
 
-Mandor performs the assessment in the current context. Load `code-review-and-quality`; load `security-and-hardening` only when the release contains a real security-sensitive boundary.
+Mandor performs the assessment in the current context. Apply security review only when the release changes a real security-sensitive boundary.
 
 Synthesize:
 

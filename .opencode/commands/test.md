@@ -4,7 +4,7 @@ agent: mandor
 subtask: false
 ---
 
-Use `test-driven-development`; for browser behavior also use `browser-testing-with-devtools` when its MCP tools are configured and authorized.
+Follow Mandor's built-in debugging and testing rules. Browser/testing skills are optional references when their extra detail is needed.
 
 Test request: `$ARGUMENTS`
 

@@ -4,11 +4,11 @@ agent: mandor
 subtask: false
 ---
 
-Use `code-review-and-quality`.
+Follow Mandor's built-in evidence-based review rules.
 
 Review scope: `$ARGUMENTS`
 
-Load `code-review-and-quality`, inspect the requested diff/files, and preserve a read-only posture. Mandor performs the review in the current context.
+Inspect the requested diff/files and preserve a read-only posture. Mandor performs the review in the current context.
 
 Prioritize requirement correctness and concrete regressions. Check architecture, security, performance, style, and documentation only where the diff actually affects them. A blocking finding needs a reachable path and material impact. Keep non-blocking notes to at most three.
 

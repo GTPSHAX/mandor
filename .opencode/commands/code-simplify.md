@@ -4,7 +4,7 @@ agent: mandor
 subtask: false
 ---
 
-Use `code-simplification`. Load `code-review-and-quality` only if the scope is Normal/Full or the user requests formal review.
+Follow Mandor's built-in scope, implementation, and review rules. Use a specialist skill only if extra domain detail is needed.
 
 Scope: `$ARGUMENTS`
 
@@ -17,6 +17,6 @@ Inspect the working tree and read the actual target files plus relevant tests. L
 5. Run relevant tests/build when available and authorized.
 6. Check affected public API documentation only when public API changed.
 7. Report verification evidence honestly and review the final diff at the depth required by the selected workflow.
-8. Use `project-memory` only if project knowledge changed materially.
+8. Update project memory directly only if project knowledge changed materially.
 
 Do not commit, push, merge, tag, release, or deploy without separate explicit user approval.

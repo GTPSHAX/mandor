@@ -4,7 +4,7 @@ agent: mandor
 subtask: false
 ---
 
-Use `spec-driven-development`.
+Follow Mandor's built-in design and authority rules. A specification skill is optional.
 
 Specification request: `$ARGUMENTS`
 

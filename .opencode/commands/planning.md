@@ -4,7 +4,7 @@ agent: mandor
 subtask: false
 ---
 
-Use `planning-and-task-breakdown`.
+Follow Mandor's built-in design and scope rules. A planning skill is optional.
 
 Planning request: `$ARGUMENTS`
 
