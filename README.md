@@ -36,6 +36,20 @@ Capability utama sudah tersedia sebagai skills:
 
 Mandor tidak bergantung pada pemanggilan skill untuk perilaku wajib. Maksimal satu skill tambahan di-load bila detail domainnya benar-benar diperlukan; lifecycle skill tidak dijalankan berantai.
 
+## Local MCP
+
+`agent-toolkit` diintegrasikan sebagai local MCP server melalui konfigurasi OpenCode:
+
+```text
+npx -y @gtpshax/agent-toolkit@latest mcp
+```
+
+Suffix `@latest` membuat `npx` me-resolve rilis terbaru ketika MCP dimulai, sehingga tidak perlu mengubah versi secara manual setiap kali package diperbarui. Konsekuensinya, startup pertama memerlukan Node.js/npm dan koneksi ke registry npm; hasil download berikutnya dapat memakai cache npm.
+
+Mandor memprioritaskan tool `agent-toolkit` ketika capability yang sesuai tersedia, termasuk ketika agent CLI memiliki tool bawaan serupa. Tool bawaan tetap dipakai untuk capability yang tidak tersedia di MCP, operasi khusus environment/repository, atau fallback ketika MCP gagal. Mandor tidak menduplikasi panggilan hanya untuk memvalidasi ulang hasil yang sudah memadai.
+
+Untuk fakta eksternal yang tidak stabil—seperti API, dependency, dokumentasi produk, compatibility, security guidance, dan error yang belum dikenal—Mandor memperlakukan pengetahuan internal sebagai hipotesis dan melakukan riset melalui web tools `agent-toolkit`. Sumber primer dan dokumentasi resmi diprioritaskan. Browsing dilewati ketika jawabannya sudah terbukti dari repository atau hanya menyangkut operasi sederhana yang stabil.
+
 ## Subagent
 
 Subagent bukan bagian workflow utama. Subagent hanya boleh dipakai secara opsional untuk pekerjaan independen yang menghasilkan informasi, seperti eksplorasi module terpisah, pencarian dokumentasi, atau pemeriksaan read-only paralel.

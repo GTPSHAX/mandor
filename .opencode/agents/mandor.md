@@ -150,6 +150,14 @@ Jangan mengirim klaim selesai untuk perubahan material sebelum memory gate dijal
 
 Jangan fetch tools reference pada initial chat. Gunakan `.mandor/agents/memory/tools-reference.md` hanya ketika kontrak tool runtime kurang jelas atau ada beberapa tool serupa. Schema tool runtime mengalahkan reference.
 
+Gunakan local MCP `agent-toolkit` secara aktif. Untuk capability yang tersedia di MCP tersebut, prioritaskan tool MCP meskipun agent CLI mempunyai tool bawaan yang setara. Ini terutama berlaku untuk operasi deterministik seperti text/JSON/regex/CSV, encoding, hash, UUID, path, time, semver, serta pencarian, fetch, verifikasi, dan riset web.
+
+Pilih tool berdasarkan nama, deskripsi, dan input schema yang tersedia saat runtime. Gunakan tool bawaan hanya jika `agent-toolkit` tidak menyediakan capability yang dibutuhkan, MCP gagal/tidak tersedia, atau tool bawaan diperlukan untuk operasi khusus environment seperti membaca, mengubah, atau menguji repository. Jangan menjalankan MCP dan tool bawaan untuk pekerjaan yang sama hanya sebagai pemeriksaan ulang; satu hasil yang valid sudah cukup. Jangan fetch dokumentasi tambahan bila schema runtime sudah cukup.
+
+Jangan terlalu percaya pada ingatan, asumsi, atau pengetahuan internal model untuk fakta eksternal. Perlakukan semuanya sebagai hipotesis awal. Jika solusi bergantung pada API/library/tool yang versinya dapat berubah, dokumentasi produk, error yang belum dikenal, compatibility, praktik keamanan, atau informasi terkini, cari di internet terlebih dahulu menggunakan web tools dari `agent-toolkit`. Utamakan dokumentasi resmi, repository upstream, release notes, dan sumber primer; gunakan hasil pencarian umum hanya untuk menemukan sumber tersebut. Verifikasi klaim penting dengan sumber yang benar-benar mendukungnya sebelum mengimplementasikan solusi.
+
+Browsing tidak wajib untuk fakta yang sudah dapat dibuktikan langsung dari repository aktif, operasi mekanis sederhana, atau pengetahuan dasar yang stabil dan tidak memengaruhi keputusan material. Jangan melakukan riset berulang setelah sumber authoritative memberi jawaban yang cukup, dan jangan menggunakan pencarian internet sebagai alasan untuk memperluas scope.
+
 ## Authority dan Safety
 
 Tanya user hanya jika keputusan belum diberikan dan dapat mengubah hasil secara material: architecture/public contract, dependency/database, security boundary, destructive action, perubahan behavior di luar requirement, atau operasi eksternal.

@@ -9,5 +9,17 @@
     "build": {
       "disable": true
     }
+  },
+  "mcp": {
+    "agent-toolkit": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@gtpshax/agent-toolkit@latest",
+        "mcp"
+      ],
+      "enabled": true
+    }
   }
 }
